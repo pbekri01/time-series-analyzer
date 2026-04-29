@@ -1,0 +1,394 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>Time Series CSV Analyzer</title>
+
+    <link rel="stylesheet" href="{% static 'analysis_app/app.css' %}" />
+
+    <link
+      href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <div class="bg-orb orb-a"></div>
+      <div class="bg-orb orb-b"></div>
+      <div class="bg-orb orb-c"></div>
+      <div class="bg-grid"></div>
+      <div class="bg-glow-line glow-line-a"></div>
+      <div class="bg-glow-line glow-line-b"></div>
+
+      <div class="container">
+        <header class="hero hero-single">
+          <div class="hero-copy">
+            <div class="eyebrow">ANALYTICS WORKBENCH</div>
+
+            <div class="hero-topline">
+              <div>
+                <h1 class="page-title">Time Series CSV Analyzer</h1>
+                <p class="page-subtitle">
+                  Upload CSV files, inspect pairwise relationships, explore
+                  entity-level charts, visualize geographic patterns, and export
+                  everything in one polished workflow.
+                </p>
+              </div>
+
+              <div class="hero-mini-stats">
+                <div class="hero-stat-pill">
+                  <span class="hero-stat-label">Entities</span>
+                  <span id="kpiEntitiesHero" class="hero-stat-value">0</span>
+                </div>
+                <div class="hero-stat-pill">
+                  <span class="hero-stat-label">Pairs</span>
+                  <span id="kpiPairsHero" class="hero-stat-value">0</span>
+                </div>
+                <div class="hero-stat-pill">
+                  <span class="hero-stat-label">Warnings</span>
+                  <span id="kpiWarningsHero" class="hero-stat-value">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-badges">
+              <span class="hero-badge">Summary Analysis</span>
+              <span class="hero-badge">Entity Drilldown</span>
+              <span class="hero-badge">Interactive Map</span>
+              <span class="hero-badge">ZIP Export</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="card controls-card spotlight-card">
+          <div class="spotlight-ring"></div>
+
+          <div class="card-header split-header split-header-center">
+            <div>
+              <h2 class="card-title">Analysis Controls</h2>
+              <p class="card-subtitle">
+                Upload data, run summary mode, inspect a selected entity, or
+                export the full result package.
+              </p>
+            </div>
+
+            <div class="header-chip">Auto workflow</div>
+          </div>
+
+          <div class="card-body">
+            <div class="controls-layout controls-layout-stacked">
+              <div class="field field-wide controls-full">
+                <label for="files">CSV files</label>
+                <div class="input-shell input-shell-file">
+                  <input id="files" type="file" multiple accept=".csv" />
+                </div>
+                <div class="helper-text">
+                  Select one or more CSV files to analyze together.
+                </div>
+              </div>
+
+              <div class="actions-row actions-row-strong controls-full">
+                <button id="summaryBtn" class="btn btn-primary">
+                  Analyze Summary
+                </button>
+
+                <div class="download-actions">
+                  <button id="exportBtn" class="btn btn-success">
+                    Download ZIP
+                  </button>
+                  <button id="pdfExportBtn" class="btn btn-secondary">
+                    Download PDF Report
+                  </button>
+                </div>
+              </div>
+
+              <div id="err" class="error-box"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="kpi-row kpi-row-premium">
+          <div class="kpi glass-kpi">
+            <div class="kpi-icon">◎</div>
+            <div class="kpi-label">Entities</div>
+            <div id="kpiEntities" class="kpi-value">0</div>
+            <div class="kpi-foot">Available entities in summary results</div>
+          </div>
+
+          <div class="kpi glass-kpi">
+            <div class="kpi-icon">↔</div>
+            <div class="kpi-label">Overall Pairs</div>
+            <div id="kpiPairs" class="kpi-value">0</div>
+            <div class="kpi-foot">Pairwise relationships discovered</div>
+          </div>
+
+          <div class="kpi glass-kpi">
+            <div class="kpi-icon">!</div>
+            <div class="kpi-label">Warnings</div>
+            <div id="kpiWarnings" class="kpi-value">0</div>
+            <div class="kpi-foot">Validation or analysis notices</div>
+          </div>
+        </section>
+
+        <section class="dashboard-grid dashboard-grid-refined">
+          {% include "analysis_app/partials/map_panel.html" %}
+
+          <section id="warningsCard" class="card is-hidden warnings-row">
+            <div class="card-header">
+              <h2 class="card-title">Warnings</h2>
+              <p class="card-subtitle">
+                Review import issues, skipped series, and analysis caveats.
+              </p>
+            </div>
+
+            <div class="card-body">
+              <div id="warnWrap" class="empty-state">No warnings yet</div>
+            </div>
+          </section>
+
+          <section id="summaryCard" class="card is-hidden feature-card">
+            <div class="card-header">
+              <h2 class="card-title">Pairwise Summary</h2>
+              <p class="card-subtitle">
+                Search, filter, and select relationships across entities.
+              </p>
+            </div>
+
+            <div class="card-body">
+              <div class="summary-toolbar">
+                <div class="summary-search">
+                  <label for="summarySearch">Search</label>
+                  <div class="search-input-wrap">
+                    <span class="search-icon" aria-hidden="true">⌕</span>
+                    <input
+                      id="summarySearch"
+                      type="text"
+                      placeholder="Search entity or series..."
+                    />
+                  </div>
+                </div>
+
+                <div class="summary-filters">
+                  <span class="filters-label">Filters</span>
+
+                  <label class="filter-chip">
+                    <input type="checkbox" id="significantOnly" />
+                    <span>Significant only</span>
+                  </label>
+
+                  <label class="filter-chip">
+                    <input type="checkbox" id="hideSpurious" />
+                    <span>Hide spurious</span>
+                  </label>
+                </div>
+              </div>
+
+              <div id="summaryWrap" class="empty-state">
+                Run a summary analysis to see results
+              </div>
+            </div>
+          </section>
+
+          <section id="overallCard" class="card is-hidden feature-card">
+            <div class="card-header">
+              <h2 class="card-title">Overall Pairwise Across Entities</h2>
+              <p class="card-subtitle">
+                Aggregated pairwise behavior across the selected dataset.
+              </p>
+            </div>
+
+            <div class="card-body">
+              <div id="overallWrap" class="empty-state">
+                Overall statistics will appear here
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="detail-grid detail-grid-refined">
+          <section
+            id="entityChartCard"
+            class="card detail-span-2 is-hidden feature-card"
+          >
+            <div class="card-header">
+              <h2 class="card-title">Selected Entity Chart</h2>
+              <p class="card-subtitle">
+                Compare aligned series for the currently loaded entity.
+              </p>
+            </div>
+
+            <div class="card-body">
+              <div id="entityChartWrap" class="entity-chart-wrap">
+                <div id="entityChartMeta" class="entity-chart-meta">
+                  Load an entity to see the chart.
+                </div>
+                <div id="entityChartLegend" class="entity-chart-legend"></div>
+                <div class="entity-chart-toolbar">
+                  <label for="chartModeSelect">Chart view</label>
+                  <div class="chart-toggle">
+                    <button data-mode="normalized" class="active">
+                      Normalized
+                    </button>
+                    <button data-mode="raw">Raw</button>
+                    <button type="button" data-mode="trend">Trend</button>
+                    <button type="button" data-mode="residual">Residual</button>
+                    <button type="button" data-mode="differenced">
+                      Differenced
+                    </button>
+                  </div>
+                </div>
+                <div id="entityChartMount" class="empty-state">
+                  No chart yet.
+                </div>
+                <div
+                  id="entityChartTooltip"
+                  class="entity-chart-tooltip is-hidden"
+                ></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="promptCard" class="card is-hidden">
+            <div class="card-header">
+              <h2 class="card-title">Selected Entity Prompt</h2>
+              <p class="card-subtitle">Generated when entity mode loads</p>
+            </div>
+
+            <div class="card-body">
+              <pre id="promptOut" class="panel-pre mono"></pre>
+            </div>
+          </section>
+
+          <section id="chatCard" class="card feature-card chat-card">
+            <div class="card-header split-header">
+              <div>
+                <h2 class="card-title">Analysis Chat</h2>
+                <p class="card-subtitle">
+                  Ask questions about the uploaded analysis after running a
+                  summary.
+                </p>
+              </div>
+
+              <button
+                id="resetChatBtn"
+                class="btn btn-secondary btn-sm"
+                type="button"
+              >
+                Reset Chat
+              </button>
+            </div>
+
+            <div class="card-body">
+              <div id="chatMessages" class="chat-messages">
+                <div class="chat-empty">
+                  Run an analysis, then ask the assistant to explain the
+                  results.
+                </div>
+              </div>
+
+              <div class="chat-controls">
+                <div class="chat-input-row">
+                  <textarea
+                    id="chatInput"
+                    class="chat-input"
+                    rows="4"
+                    placeholder="Example: Which entity shows the strongest relationship and why?"
+                  ></textarea>
+
+                  <div class="chat-inline-actions">
+                    <button
+                      id="explainEntityBtn"
+                      class="btn btn-secondary"
+                      type="button"
+                    >
+                      Explain <br />
+                      Selected Entity
+                    </button>
+
+                    <button
+                      id="chatSendBtn"
+                      class="btn btn-primary"
+                      type="button"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+
+                <div class="chat-actions">
+                  <div id="chatStatus" class="helper-text">
+                    Chat is ready when summary results are available.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="jsonCard" class="card detail-span-3 is-hidden">
+            <div class="card-header split-header">
+              <div>
+                <h2 class="card-title">Raw JSON Response</h2>
+                <p class="card-subtitle">Full API response</p>
+              </div>
+
+              <button id="toggleJsonBtn" class="btn btn-secondary btn-sm">
+                Collapse
+              </button>
+            </div>
+
+            <div class="card-body" id="jsonCardBody">
+              <pre id="out" class="panel-pre mono">{}</pre>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"
+    ></script>
+    <script src="{% static 'analysis_app/map.js' %}"></script>
+    <script src="{% static 'analysis_app/app.js' %}"></script>
+
+    <script>
+      function syncHeroKpis() {
+        const ids = [
+          ["kpiEntities", "kpiEntitiesHero"],
+          ["kpiPairs", "kpiPairsHero"],
+          ["kpiWarnings", "kpiWarningsHero"],
+        ];
+
+        ids.forEach(([sourceId, targetId]) => {
+          const source = document.getElementById(sourceId);
+          const target = document.getElementById(targetId);
+          if (source && target) target.textContent = source.textContent;
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", syncHeroKpis);
+
+      const heroObserver = new MutationObserver(syncHeroKpis);
+      ["kpiEntities", "kpiPairs", "kpiWarnings"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          heroObserver.observe(el, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+        }
+      });
+    </script>
+
+    <div id="globalLoader">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Loading…</div>
+    </div>
+  </body>
+</html>

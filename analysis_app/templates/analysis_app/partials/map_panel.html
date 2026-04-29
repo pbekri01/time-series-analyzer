@@ -1,0 +1,40 @@
+<section id="mapCard" class="card feature-card">
+  <div class="card-header">
+    <h2 class="card-title">Map Overview</h2>
+    <p class="card-subtitle">Country-level overview of pairwise metrics</p>
+  </div>
+
+  <div class="card-body">
+    <div class="map-controls map-controls-3col">
+      <div class="field">
+        <label for="mapMetricSelect">Map metric</label>
+        <select id="mapMetricSelect">
+          <option value="max_abs_corr" >Max correlation (any lag)</option>
+          <option value="diff_corr" selected>Diff correlation</option>
+          <option value="corr_lag0">Lag-0 correlation</option>
+          <option value="residual_corr">Residual correlation</option>
+          <option value="trend_corr">Trend correlation</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mapFilterSelect">Show</label>
+        <select id="mapFilterSelect">
+          <option value="all" selected>All countries</option>
+          <option value="significant">Significant only</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mapPairSelect">Pair</label>
+        <select id="mapPairSelect">
+          <option value="">Top pair per country</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="mapFrame" class="map-frame map-frame-premium">
+      {{ map_html|safe }}
+    </div>
+  </div>
+</section>
