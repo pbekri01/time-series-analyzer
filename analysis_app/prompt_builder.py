@@ -119,10 +119,6 @@ RESIDUAL RULE:
 SPURIOUS RULE:
 - If `spurious_risk` is true, treat the relationship as potentially spurious.
 
-SEASONALITY RULE:
-- If `seasonality_overlap` is false, do not emphasize cyclical alignment.
-- If `seasonality_overlap` is true, mention cyclical similarity only cautiously.
-
 EVENT WINDOW RULE:
 - Use `overlap_year_range` as the primary time window when suggesting historical events.
 
