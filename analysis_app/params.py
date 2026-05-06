@@ -32,7 +32,7 @@ def _entity_lengths(dfs: dict) -> list[int]:
         entity_col = _infer_entity_col(df)
 
         if entity_col is None:
-            # fallback: if no entity column exists, use full dataframe length
+            
             lengths.append(len(df))
             continue
 
@@ -53,8 +53,7 @@ def infer_max_lag_from_data(dfs: dict) -> int:
 
     n = int(np.median(lengths))
 
-    # Conservative choice for annual public-health data:
-    # keep lag small to avoid unstable correlations.
+    
     inferred = n // 8
 
     return max(1, min(3, inferred))
@@ -71,8 +70,7 @@ def infer_min_points_from_data(dfs: dict, max_lag: int) -> int:
 
     n = int(np.median(lengths))
 
-    # Require a reasonable fraction of each entity's time series,
-    # but avoid being too aggressive.
+    
     inferred = max(8, min(20, int(n * 0.5)))
 
     return max(inferred, max_lag + 2)

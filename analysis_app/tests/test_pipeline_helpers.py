@@ -87,7 +87,6 @@ def test_pairwise_overlap_removes_nans():
 
     xo, yo, yrs = _pairwise_finite_overlap(years, x, y)
 
-    # only index 0 and 3 survive
     assert len(xo) == 2
     assert yrs == [2000, 2003]
 

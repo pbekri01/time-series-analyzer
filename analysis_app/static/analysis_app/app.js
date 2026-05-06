@@ -1708,15 +1708,12 @@ function buildReportHtml() {
 function downloadPdfReport() {
   const reportHtml = buildReportHtml();
 
-  // Δημιουργία blob
   const blob = new Blob([reportHtml], { type: "text/html" });
   const url = URL.createObjectURL(blob);
 
-  // Άνοιγμα στο ίδιο tab (δεν μπλοκάρεται)
   const newWindow = window.open(url, "_blank");
 
   if (!newWindow) {
-    // fallback: redirect στο ίδιο tab
     window.location.href = url;
     return;
   }

@@ -133,7 +133,7 @@ def make_summary_payload(result: dict, summary_top_pairs: int = 1) -> dict:
     for ent_name, ent_data in entities.items():
         pairs = ent_data.get("pairwise_analysis", []) or []
 
-        # Krata mono pairs me pragmatiko overlap
+        
         valid_pairs = [
             p for p in pairs
             if p.get("series_A") and p.get("series_B")

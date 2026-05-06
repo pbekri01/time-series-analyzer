@@ -47,7 +47,6 @@ def _csv_safe_value(v: Any) -> str:
     if isinstance(v, float):
         if not math.isfinite(v):
             return ""
-        # 15 significant digits is compact and preserves practical precision well
         return format(v, ".15g")
 
     try:
