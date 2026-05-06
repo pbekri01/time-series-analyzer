@@ -175,7 +175,7 @@ def make_summary_payload(result: dict, summary_top_pairs: int = 1) -> dict:
                 "trend_driven": p.get("trend_driven"),
                 "trend_strength": p.get("trend_strength"),
                 "residual_strength": p.get("residual_strength"),
-                "seasonality_overlap": p.get("seasonality_overlap"),
+                # "seasonality_overlap": p.get("seasonality_overlap"),
                 "summary_score": _pair_score_for_summary(p),
             })
 

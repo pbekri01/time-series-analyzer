@@ -470,7 +470,7 @@ function renderSummaryTable(summaryJson) {
         diff: pair.diff_corr ?? null,
         pDiff: pair.diff_p_value ?? null,
         spurious: pair.spurious_risk ?? false,
-        season: pair.seasonality_overlap ?? null,
+        // season: pair.seasonality_overlap ?? null,
       });
     }
   }
@@ -697,19 +697,19 @@ function renderSummaryTable(summaryJson) {
             : `<span class="tab-badge-ok">Low</span>`;
         },
       },
-      {
-        title: "season",
-        field: "season",
-        sorter: "boolean",
-        responsive: 2,
-        formatter: (cell) => {
-          const v = cell.getValue();
-          if (v == null) return "–";
-          return v
-            ? `<span class="tab-badge-yes">Yes</span>`
-            : `<span class="tab-badge-no">No</span>`;
-        },
-      },
+      // {
+      //   title: "season",
+      //   field: "season",
+      //   sorter: "boolean",
+      //   responsive: 2,
+      //   formatter: (cell) => {
+      //     const v = cell.getValue();
+      //     if (v == null) return "–";
+      //     return v
+      //       ? `<span class="tab-badge-yes">Yes</span>`
+      //       : `<span class="tab-badge-no">No</span>`;
+      //   },
+      // },
     ],
   });
 

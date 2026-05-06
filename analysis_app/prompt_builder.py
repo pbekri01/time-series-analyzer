@@ -48,10 +48,6 @@ RESIDUAL-BASED EVENT RULE:
 SPURIOUS RISK RULE:
 - If spurious_risk is true, treat the relationship as likely spurious/shared-structure and avoid detailed event alignment.
 
-SEASONALITY RULE:
-- If seasonality_overlap is false, do not emphasize cyclical alignment.
-- If seasonality_overlap is true, mention cyclical similarity only cautiously.
-
 EVENT WINDOW RULE:
 - Use overlap_year_range as the primary time window when suggesting historical events.
 
@@ -221,7 +217,7 @@ def _compact_entity_payload(result: dict, entity: str, top_pairs: int = 10, top_
             "trend_strength": p.get("trend_strength"),
             "residual_strength": p.get("residual_strength"),
             "spurious_risk": p.get("spurious_risk"),
-            "seasonality_overlap": p.get("seasonality_overlap"),
+            # "seasonality_overlap": p.get("seasonality_overlap"),
             "stationarity": p.get("stationarity"),
         })
 
